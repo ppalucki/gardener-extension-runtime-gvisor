@@ -84,7 +84,6 @@ var _ = Describe("Chart package test", func() {
 
 		// Create actuator
 		a := controller.NewActuator(crf)
-		mockClient = mockclient.NewMockClient(ctrl)
 
 		BeforeSuite(func() {
 			err := a.(inject.Client).InjectClient(mockClient)
