@@ -26,6 +26,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 const (
@@ -81,17 +83,21 @@ func DefaultPredicates(ignoreOperationAnnotation bool) []predicate.Predicate {
 }
 
 func add(mgr manager.Manager, args AddArgs) error {
+	logger := log.Log.WithName("runtime-gvisor-setup")
 	ctrl, err := controller.New(ControllerName, mgr, args.ControllerOptions)
 	if err != nil {
 		return err
 	}
 
 	predicates := extensionspredicate.AddTypePredicate(args.Predicates, args.Type)
+	logger.Info("SACRE: IgnoreOperationAnnotation value", "IgnoreOperationAnnotation", args.IgnoreOperationAnnotation)
 
 	if args.IgnoreOperationAnnotation {
 		if err := ctrl.Watch(
 			&source.Kind{Type: &extensionsv1alpha1.Cluster{}},
-			extensionshandler.EnqueueRequestsFromMapper(ClusterToContainerResourceMapper(predicates...), extensionshandler.UpdateWithNew),
+			extensionshandler.EnqueueRequestsFromMapper(
+				ClusterToContainerResourceMapper(predicates...), extensionshandler.UpdateWithNew,
+			),
 		); err != nil {
 			return err
 		}

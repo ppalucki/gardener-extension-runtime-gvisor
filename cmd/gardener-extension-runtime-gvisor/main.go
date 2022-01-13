@@ -24,8 +24,9 @@ import (
 )
 
 func main() {
-	runtimelog.SetLogger(log.ZapLogger(false))
+	runtimelog.SetLogger(log.ZapLogger(true))
 	cmd := app.NewControllerManagerCommand(signals.SetupSignalHandler())
+	runtimelog.Log.Info("SACRE TO BYL")
 
 	if err := cmd.Execute(); err != nil {
 		controllercmd.LogErrAndExit(err, "error executing the main controller command")
